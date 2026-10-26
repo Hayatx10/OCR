@@ -10,6 +10,7 @@ const path = require("node:path");
 
 const database = require("./db");
 
+
 const app = express();
 const port = Number(process.env.PORT || 3010);
 const configuredSessionSecret = process.env.SESSION_SECRET;
@@ -416,11 +417,10 @@ async function startServer() {
         sessionStore = new session.MemoryStore();
         console.warn("Sessions use the in-memory store. Restarting the server signs everyone out.");
     }
-const port = process.env.PORT || 3010;
 
-app.listen(port, '0.0.0.0', () => {
+   app.listen(port, '0.0.0.0', () => {
     console.log(`Textify AI is running on port ${port}`);
-});
+});}
 
 startServer().catch(async (error) => {
     console.error("Could not start Textify AI:", error.message);

@@ -416,11 +416,11 @@ async function startServer() {
         sessionStore = new session.MemoryStore();
         console.warn("Sessions use the in-memory store. Restarting the server signs everyone out.");
     }
+const port = process.env.PORT || 3010;
 
-    app.listen(port, () => {
-        console.log(`Textify AI is running at http://localhost:${port}`);
-    });
-}
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Textify AI is running on port ${port}`);
+});
 
 startServer().catch(async (error) => {
     console.error("Could not start Textify AI:", error.message);

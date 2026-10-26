@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textify | OCR Studio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">T</div>
+            <span>Textify</span>
+        </div>
+
+        <p class="menu-label">Menu</p>
+        <a href="#workspace" class="nav-item active" id="navStudio"><span>OCR Studio</span></a>
+        <a href="#text-to-image" class="nav-item"><span>Text to image</span></a>
+        <a href="#batch" class="nav-item" id="navBatch"><span>Batch queue</span></a>
+        <a href="#library" class="nav-item" id="navLibrary"><span>Library</span></a>
+        <a href="#how-it-works" class="nav-item" id="navHow"><span>How it works</span></a>
+        <a href="#project-details" class="nav-item"><span>Project details</span></a>
+
+        <div class="sidebar-bottom">
+            <div class="help-card">
+                <div class="help-icon">Tip</div>
+                <h3>Use a clear image</h3>
+                <p>Good lighting and straight text give better OCR results.</p>
+            </div>
+            <p class="sidebar-footer">Textify 2026</p>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="breadcrumb">Textify / <span>OCR</span></p>
+                <h2>Image to Text</h2>
+            </div>
+            <div class="profile">
+                <div class="avatar">T</div>
+                <div>
+                    <strong id="userEmail">OCR Workspace</strong>
+                    <small>Signed in</small>
+                </div>
+                <span class="storage-badge" id="storageBadge" title="Database connection">Checking…</span>
+                <button class="logout-btn" id="logoutBtn" type="button">Sign out</button>
+            </div>
+        </header>
+
+        <section class="welcome">
+            <div>
+                <div class="eyebrow"><span class="status-dot"></span> Ready</div>
+                <h1>Upload an image and extract its text.</h1>
+                <p>This tool reads text from screenshots, scans, notes, and document photos. Clean the result, redact what is sensitive, and export it in the format you need.</p>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div><small>Formats</small><h3>PNG, JPG, WEBP</h3><p>Use clear image files for better results.</p></div>
+            </div>
+            <div class="stat-card">
+                <div><small>Languages</small><h3>40+ scripts</h3><p>Combine languages for mixed documents.</p></div>
+            </div>
+            <div class="stat-card">
+                <div><small>Export</small><h3>7 formats</h3><p>TXT, DOCX, MD, CSV, HTML, JSON and PDF.</p></div>
+            </div>
+        </section>
+
+        <section class="workspace" id="workspace">
+            <div class="section-heading">
+                <div>
+                    <h2>OCR Workspace</h2>
+                    <p>Choose an image first, then run text extraction.</p>
+                </div>
+            </div>
+
+            <div class="work-grid">
+                <div class="panel upload-panel">
+                    <div class="panel-title">
+                        <div><span class="number">1</span> <strong>Image</strong></div>
+                        <span class="subtle">Input</span>
+                    </div>
+
+                    <input type="file" id="imageInput"
+                           accept="image/png,image/jpeg,image/webp"
+                           multiple
+                           capture="environment"
+                           hidden>
+
+                    <div class="drop-zone" id="dropZone" tabindex="0" role="button"
+                         aria-label="Choose or drop one or more images">
+                        <div class="upload-illustration">
+                            <div class="upload-cloud">Upload</div>
+                        </div>
+                        <h3>Drop image here</h3>
+                        <p>or <button class="text-button" id="browseBtn">browse files</button></p>
+                        <div class="file-types">
+                            <span>PNG</span><span>JPG</span><span>WEBP</span>
+                        </div>
+                        <small>Select several files to run them as a batch.</small>
+                    </div>
+
+                    <div class="preview-wrap hidden" id="previewWrap">
+                        <div class="image-preview-stage">
+                            <img id="imagePreview" alt="Selected image preview">
+                            <canvas id="ocrHighlightCanvas" aria-hidden="true"></canvas>
+                        </div>
+                        <div class="preview-info">
+                            <div>
+                                <strong id="fileName">image.png</strong>
+                                <small id="fileSize">0 KB</small>
+                            </div>
+                            <button id="removeBtn" class="remove-btn" aria-label="Remove image">Remove</button>
+                        </div>
+                    </div>
+
+                    <div class="scanner-tools hidden" id="scannerTools" aria-label="Document scanner tools">
+                        <p class="scanner-label">SCANNER TOOLS</p>
+                        <label class="scanner-auto-enhance">
+                            <input id="autoEnhanceCheckbox" type="checkbox">
+                            <span>Auto-clean before extracting text (can remove faint detail)</span>
+                        </label>
+                        <div class="scanner-tool-row">
+                            <button class="secondary-btn scanner-tool-btn" id="rotateLeftBtn" type="button" aria-label="Rotate left 90 degrees">↶ Rotate left</button>
+                            <button class="secondary-btn scanner-tool-btn" id="rotateRightBtn" type="button" aria-label="Rotate right 90 degrees">↷ Rotate right</button>
+                        </div>
+                        <div class="scanner-tool-row">
+                            <button class="secondary-btn scanner-tool-btn" id="cropBtn" type="button">Crop image</button>
+                            <button class="secondary-btn scanner-tool-btn" id="grayscaleBtn" type="button">Grayscale</button>
+                        </div>
+                        <button class="secondary-btn scanner-tool-btn" id="enhanceBtn" type="button">Clean up shadows and noise</button>
+                        <button class="secondary-btn scanner-tool-btn" id="perspectiveBtn" type="button">Auto-correct perspective</button>
+                        <button class="secondary-btn scanner-tool-btn" id="qrBtn" type="button">Read QR / barcode</button>
+                        <div class="crop-editor hidden" id="cropEditor">
+                            <p>Drag over the image to select the area to keep.</p>
+                            <canvas id="cropCanvas" aria-label="Select image crop area"></canvas>
+                            <div class="scanner-tool-row">
+                                <button class="secondary-btn scanner-tool-btn" id="applyCropBtn" type="button" disabled>Apply crop</button>
+                                <button class="secondary-btn scanner-tool-btn" id="cancelCropBtn" type="button">Cancel</button>
+                            </div>
+                        </div>
+                        <p class="scanner-note" id="scannerNote" role="status" aria-live="polite">Edits are applied before text extraction.</p>
+                    </div>
+
+                    <div class="field-block">
+                        <label class="field-label" for="languageButton">Scan language</label>
+                        <button class="field-control" id="languageButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+                            <span id="languageLabel">English</span>
+                            <span class="field-caret">▾</span>
+                        </button>
+                        <div class="language-menu hidden" id="languageMenu" role="listbox" aria-label="OCR languages">
+                            <div class="language-menu-head">
+                                <input type="search" id="languageSearch" placeholder="Search languages" aria-label="Search languages">
+                            </div>
+                            <div class="language-options" id="languageOptions"></div>
+                            <div class="language-menu-foot">
+                                <button class="text-button" id="languageClearBtn" type="button">Clear all</button>
+                                <span class="subtle">Pick up to 3 for mixed documents.</span>
+                            </div>
+                        </div>
+                        <p class="field-hint">Hindi uses a higher-accuracy model (larger first download). Combine languages for mixed scripts.</p>
+                    </div>
+
+                    <button class="primary-btn" id="extractBtn" disabled>
+                        <span>Extract text</span>
+                    </button>
+                    <div class="letter-classifier" aria-labelledby="letterClassifierTitle">
+                        <div>
+                            <h3 id="letterClassifierTitle">Single letter recognition</h3>
+                            <p>Classify an image containing one handwritten or printed letter.</p>
+                        </div>
+                        <button class="secondary-btn" id="classifyLetterBtn" type="button" disabled>Classify letter</button>
+                        <p class="letter-classifier-result" id="letterClassifierResult" role="status" aria-live="polite">Choose an image to get started.</p>
+                    </div>
+                    <button class="secondary-btn pdf-btn" id="pdfBtn" type="button" disabled>
+                        Download image as PDF
+                    </button>
+                    <label class="scanner-auto-enhance library-toggle">
+                        <input id="saveToLibraryToggle" type="checkbox" checked>
+                        <span>Save result to my library</span>
+                    </label>
+                    <p class="privacy-note">PDFs are created in your browser. OCR may take a few seconds on larger images.</p>
+                </div>
+
+                <div class="panel result-panel">
+                    <div class="panel-title">
+                        <div><span class="number">2</span> <strong>Text result</strong></div>
+                        <div class="result-heading-actions">
+                            <span class="result-status" id="resultStatus" role="status" aria-live="polite">Awaiting image</span>
+                            <button class="primary-btn summarize-btn" id="summarizeBtn" type="button" disabled>Summarize text</button>
+                        </div>
+                    </div>
+
+                    <div class="result-placeholder" id="resultPlaceholder">
+                        <div class="result-art">Aa</div>
+                        <h3>No text yet</h3>
+                        <p>Extracted text will appear here.</p>
+                    </div>
+
+                    <div class="result-output hidden" id="resultOutput">
+                        <textarea id="outputText"
+                                  placeholder="Your extracted text will appear here..."
+                                  spellcheck="false"
+                                  aria-label="Extracted text"></textarea>
+                        <div class="output-footer">
+                            <span id="wordCount">0 words / 0 characters</span>
+                            <span class="editable-label">Editable</span>
+                        </div>
+                        <button class="text-button word-map-toggle hidden" id="wordMapToggleBtn" type="button" aria-expanded="false">Click words to locate them in the image</button>
+                        <div class="ocr-word-map hidden" id="ocrWordMap" aria-label="Clickable OCR words"></div>
+                    </div>
+
+                    <div class="table-block hidden" id="tableBlock">
+                        <div class="block-heading">
+                            <div>
+                                <h3>Detected table</h3>
+                                <p id="tableSummary" role="status" aria-live="polite"></p>
+                            </div>
+                            <button class="secondary-btn small-btn" id="exportTableBtn" type="button">Export CSV for Excel</button>
+                        </div>
+                        <div class="table-preview-wrap" id="tablePreview"></div>
+                    </div>
+
+                    <div class="summary-block hidden" id="summaryBlock">
+                        <div class="block-heading">
+                            <div>
+                                <h3>Text summary</h3>
+                                <p id="summaryText" role="status" aria-live="polite"></p>
+                            </div>
+                            <button class="secondary-btn small-btn" id="copySummaryBtn" type="button">Copy summary</button>
+                        </div>
+                    </div>
+
+                    <div class="confidence-row hidden" id="confidenceRow">
+                        <div class="confidence-label">
+                            <span>OCR confidence</span>
+                            <strong id="confidenceValue">0%</strong>
+                        </div>
+                        <div class="confidence-track"><div class="confidence-fill" id="confidenceFill"></div></div>
+                    </div>
+
+                    <div class="text-stats hidden" id="textStats">
+                        <div class="text-stat"><small>Words</small><strong id="statWords">0</strong></div>
+                        <div class="text-stat"><small>Characters</small><strong id="statChars">0</strong></div>
+                        <div class="text-stat"><small>Lines</small><strong id="statLines">0</strong></div>
+                        <div class="text-stat"><small>Read time</small><strong id="statRead">0m</strong></div>
+                    </div>
+
+                    <div class="cleanup-block hidden" id="cleanupBlock">
+                        <div class="block-heading">
+                            <div>
+                                <h3>Smart cleanup</h3>
+                                <p>Fix common OCR mistakes before you export.</p>
+                            </div>
+                            <button class="secondary-btn small-btn" id="cleanupToggleBtn" type="button" aria-expanded="false">Options</button>
+                        </div>
+                        <div class="cleanup-options hidden" id="cleanupOptions"></div>
+                        <div class="cleanup-actions">
+                            <button class="secondary-btn" id="applyCleanupBtn" type="button">Apply cleanup</button>
+                            <span class="cleanup-summary" id="cleanupSummary" role="status" aria-live="polite"></span>
+                        </div>
+                        <div class="proofread-actions">
+                            <div>
+                                <h4>Writing review</h4>
+                                <p>Check for likely English spelling, grammar, and punctuation issues. Runs in your browser.</p>
+                            </div>
+                            <button class="secondary-btn" id="proofreadBtn" type="button">Check writing</button>
+                        </div>
+                        <div class="proofread-results hidden" id="proofreadResults" aria-live="polite">
+                            <div class="proofread-results-heading">
+                                <span id="proofreadSummary"></span>
+                                <button class="text-button hidden" id="applyAllProofreadBtn" type="button">Apply all suggestions</button>
+                            </div>
+                            <div id="proofreadFindings"></div>
+                        </div>
+                    </div>
+
+                    <div class="qr-block hidden" id="qrBlock">
+                        <div class="block-heading">
+                            <div>
+                                <h3>Codes found</h3>
+                                <p>QR codes and barcodes detected in this image.</p>
+                            </div>
+                            <button class="text-button" id="qrCloseBtn" type="button">Close</button>
+                        </div>
+                        <div class="qr-results" id="qrResults"></div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="secondary-btn" id="detectTableBtn" type="button" disabled>Detect table</button>
+                        <button class="secondary-btn" id="copyBtn" disabled>Copy text</button>
+                        <div class="export-wrap">
+                            <button class="secondary-btn download-btn" id="exportBtn" disabled aria-haspopup="menu" aria-expanded="false">Export ▾</button>
+                            <div class="export-menu hidden" id="exportMenu" role="menu"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="text-image-section" id="text-to-image">
+            <div class="section-heading">
+                <div>
+                    <h2>Text to image</h2>
+                    <p>Turn a note or OCR result into a shareable PNG. Your text stays in your browser.</p>
+                </div>
+            </div>
+            <div class="text-image-grid">
+                <div class="panel text-image-controls">
+                    <label class="field-label" for="imageTextInput">Text</label>
+                    <textarea id="imageTextInput" class="text-image-input" maxlength="5000"
+                              placeholder="Type or paste the text you want to turn into an image..."
+                              aria-label="Text to render as an image"></textarea>
+                    <div class="text-image-control-grid">
+                        <div class="field-block">
+                            <label class="field-label" for="imageFontSelect">Font</label>
+                            <select class="field-control" id="imageFontSelect">
+                                <option value="Arial, sans-serif">Arial</option>
+                                <option value="Georgia, serif">Georgia</option>
+                                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                                <option value="'Courier New', monospace">Courier New</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label class="field-label" for="imageSizeSelect">Text size</label>
+                            <select class="field-control" id="imageSizeSelect">
+                                <option value="24">Small</option>
+                                <option value="36">Medium</option>
+                                <option value="48" selected>Large</option>
+                                <option value="64">Extra large</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label class="field-label" for="imageWidthSelect">Image width</label>
+                            <select class="field-control" id="imageWidthSelect">
+                                <option value="720">720 px</option>
+                                <option value="1080" selected>1080 px</option>
+                                <option value="1440">1440 px</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label class="field-label" for="imageAlignSelect">Alignment</label>
+                            <select class="field-control" id="imageAlignSelect">
+                                <option value="left" selected>Left</option>
+                                <option value="center">Center</option>
+                                <option value="right">Right</option>
+                            </select>
+                        </div>
+                        <div class="field-block color-field">
+                            <label class="field-label" for="imageTextColor">Text color</label>
+                            <input class="text-image-color" id="imageTextColor" type="color" value="#101828">
+                        </div>
+                        <div class="field-block color-field">
+                            <label class="field-label" for="imageBackgroundColor">Background</label>
+                            <input class="text-image-color" id="imageBackgroundColor" type="color" value="#ffffff">
+                        </div>
+                    </div>
+                    <div class="text-image-actions">
+                        <button class="secondary-btn" id="useOcrTextBtn" type="button" disabled>Use OCR result</button>
+                        <button class="primary-btn" id="downloadTextImageBtn" type="button" disabled>Download PNG</button>
+                    </div>
+                    <p class="privacy-note">Image generation runs locally in your browser. Maximum text length: 5,000 characters.</p>
+                </div>
+                <div class="panel text-image-preview-panel">
+                    <div class="block-heading">
+                        <div>
+                            <h3>Preview</h3>
+                            <p id="textImageDimensions">Your image preview will appear here.</p>
+                        </div>
+                        <span class="editable-label">PNG</span>
+                    </div>
+                    <div class="text-image-preview" id="textImagePreview">
+                        <p id="textImagePlaceholder">Enter some text to see your image preview.</p>
+                        <canvas id="textImageCanvas" class="hidden" aria-label="Generated text image preview"></canvas>
+                    </div>
+                    <p class="text-image-status" id="textImageStatus" role="status" aria-live="polite"></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="batch-section hidden" id="batch">
+            <div class="section-heading">
+                <div>
+                    <h2>Batch queue</h2>
+                    <p>Run several images through the OCR engine one after another.</p>
+                </div>
+                <div class="section-heading-actions">
+                    <button class="secondary-btn" id="batchDownloadBtn" type="button" disabled>Download all (.md)</button>
+                    <button class="secondary-btn" id="batchClearBtn" type="button">Clear queue</button>
+                    <button class="primary-btn compact-btn" id="batchStartBtn" type="button">Extract all</button>
+                </div>
+            </div>
+            <div class="batch-summary" id="batchSummary" role="status" aria-live="polite">No files queued yet.</div>
+            <ul class="batch-list" id="batchList"></ul>
+        </section>
+
+        <section class="library-section" id="library">
+            <div class="section-heading">
+                <div>
+                    <h2>Library</h2>
+                    <p>Every scan you keep is stored in MongoDB and searchable.</p>
+                </div>
+                <div class="section-heading-actions">
+                    <input type="search" id="librarySearch" class="library-search" placeholder="Search saved scans" aria-label="Search saved scans">
+                    <button class="secondary-btn" id="clearLibraryBtn" type="button">Clear all</button>
+                </div>
+            </div>
+            <div class="library-meta" id="libraryMeta">Loading…</div>
+            <div class="library-grid" id="libraryGrid"></div>
+            <div class="library-empty hidden" id="libraryEmpty">
+                <h3>Nothing saved yet</h3>
+                <p>Run an extraction with “Save result to my library” switched on and it will show up here.</p>
+            </div>
+        </section>
+
+        <section class="how-section" id="how-it-works">
+            <div class="section-heading">
+                <div><h2>How it works</h2><p>Keep the source image clear and readable.</p></div>
+            </div>
+            <div class="how-grid">
+                <div class="how-card"><span>01</span><h3>Upload</h3><p>Select a photo, scan, or screenshot — one file or a whole batch.</p></div>
+                <div class="how-card"><span>02</span><h3>Extract</h3><p>The app reads the text in the language you pick.</p></div>
+                <div class="how-card"><span>03</span><h3>Clean and export</h3><p>Repair OCR mistakes, then copy or download the result.</p></div>
+            </div>
+        </section>
+
+        <section class="how-section" id="project-details">
+            <div class="section-heading">
+                <div>
+                    <h2>Project details</h2>
+                    <p>Image processing and machine learning for alphabet recognition.</p>
+                </div>
+            </div>
+            <div class="how-grid">
+                <article class="how-card">
+                    <span>01</span>
+                    <h3>Image processing and OCR</h3>
+                    <p>Built a Python workflow to load images, prepare them with OpenCV tools, and extract text using pytesseract.</p>
+                </article>
+                <article class="how-card">
+                    <span>02</span>
+                    <h3>Alphabet classification</h3>
+                    <p>Adapted the MNIST classification approach to recognize alphabet characters from images and iterated on the model to improve test accuracy.</p>
+                </article>
+                <article class="how-card">
+                    <span>03</span>
+                    <h3>Model experiments</h3>
+                    <p>Compared logistic regression with neural network models, using scikit-learn and Keras to classify letters in images.</p>
+                </article>
+            </div>
+        </section>
+
+        <footer>Textify OCR</footer>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="text-tools.js"></script>
+    <script src="exporters.js"></script>
+    <script src="text-to-image.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

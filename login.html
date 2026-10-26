@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in | Textify</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-required">
+    <section class="login-screen" id="loginScreen" aria-labelledby="loginHeading">
+        <header class="login-topbar">
+            <a class="login-brand" href="/login" aria-label="Textify home">
+                <span class="brand-icon">T</span>
+                <span>Textify</span>
+            </a>
+            <span class="workspace-badge"><span></span> Local OCR app</span>
+        </header>
+
+        <div class="login-layout">
+            <div class="login-intro">
+                <p class="login-kicker">IMAGE TO TEXT</p>
+                <h1>Sign in to use the OCR tool.</h1>
+                <p class="login-description">Upload an image, extract the text, then copy or download the result. It is a simple workspace for scans, screenshots, and document photos.</p>
+                <div class="login-feature"><span>1</span><p><strong>Choose an image</strong><small>PNG, JPG, and WEBP files are supported.</small></p></div>
+                <div class="login-feature"><span>2</span><p><strong>Save the text</strong><small>Review the OCR result before copying or downloading it.</small></p></div>
+            </div>
+
+            <div class="login-card">
+                <div class="login-card-heading">
+                    <span class="login-mark">T</span>
+                    <p class="login-kicker" id="loginEyebrow">ACCOUNT</p>
+                    <h2 id="loginHeading">Sign in</h2>
+                    <p id="loginDescription">Use your account to open the app.</p>
+                </div>
+
+                <div class="login-tabs" role="tablist" aria-label="Account access">
+                    <button class="login-tab active" id="signInTab" type="button" role="tab" aria-selected="true">Sign in</button>
+                    <button class="login-tab" id="signUpTab" type="button" role="tab" aria-selected="false">Create account</button>
+                </div>
+
+                <form id="loginForm" class="login-form">
+                    <label for="loginEmail">Email address</label>
+                    <input id="loginEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required>
+
+                    <div class="login-password-label">
+                        <label for="loginPassword">Password</label>
+                        <span id="passwordHint">Minimum 8 characters</span>
+                    </div>
+                    <input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" minlength="8" maxlength="128" required>
+
+                    <div class="confirm-password-field hidden" id="confirmPasswordField">
+                        <label for="confirmPassword">Confirm password</label>
+                        <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Re-enter your password">
+                    </div>
+
+                    <p class="login-error hidden" id="loginError" role="alert"></p>
+                    <button class="login-submit" id="loginSubmit" type="submit">Sign in</button>
+                </form>
+
+                <div class="account-security-note">
+                    <span aria-hidden="true">i</span>
+                    <p><strong>Note.</strong> Accounts are stored on this server. Image previews are handled in the browser.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="login-footer">Textify OCR</footer>
+    </section>
+    <script src="auth.js"></script>
+</body>
+</html>

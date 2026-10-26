@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Textify AI — Poster 2</title>
+<style>
+    @page { size: A4 portrait; margin: 0; }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; padding: 0; background: #070b14; }
+
+    body {
+        font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .poster {
+        position: relative;
+        width: 210mm;
+        height: 297mm;
+        margin: 0 auto;
+        padding: 15mm 16mm 12mm;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        color: #e9eefb;
+        background:
+            radial-gradient(560px 380px at 92% -6%, #143a86 0%, rgba(20, 58, 134, 0) 62%),
+            radial-gradient(480px 360px at -8% 62%, #083f4a 0%, rgba(8, 63, 74, 0) 58%),
+            linear-gradient(180deg, #070b14 0%, #0a1120 55%, #070b14 100%);
+    }
+
+    .poster::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+            linear-gradient(rgba(130, 165, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(130, 165, 255, 0.05) 1px, transparent 1px);
+        background-size: 12mm 12mm;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 55%);
+    }
+
+    .topbar {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6mm;
+    }
+
+    .brand { display: flex; align-items: center; gap: 3mm; }
+
+    .logo {
+        width: 11mm;
+        height: 11mm;
+        border-radius: 3mm;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(145deg, #2f6bff, #22c4d6);
+        box-shadow: 0 0 0 0.4mm rgba(120, 175, 255, 0.2), 0 3mm 9mm rgba(23, 92, 255, 0.35);
+    }
+
+    .logo svg { width: 6mm; height: 6mm; }
+
+    .brand-name {
+        font-size: 13pt;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        color: #ffffff;
+    }
+
+    .brand-sub {
+        margin-top: 0.4mm;
+        font-size: 6.4pt;
+        font-weight: 700;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: #7ea6e8;
+    }
+
+    .edition {
+        text-align: right;
+        font-size: 6.6pt;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #8fa9cc;
+        line-height: 1.7;
+    }
+
+    .edition b { color: #8fe3ec; }
+
+    .hero {
+        position: relative;
+        z-index: 1;
+        margin-top: 29mm;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 2mm;
+        font-size: 7pt;
+        font-weight: 750;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: #58c9e8;
+    }
+
+    .eyebrow::before {
+        content: "";
+        width: 6mm;
+        height: 0.6mm;
+        border-radius: 1mm;
+        background: linear-gradient(90deg, #4f8cff, #35d0d8);
+    }
+
+    h1 {
+        margin: 6mm 0 6mm;
+        max-width: 176mm;
+        font-size: 54pt;
+        line-height: 1.0;
+        letter-spacing: -0.035em;
+        font-weight: 850;
+        color: #ffffff;
+    }
+
+    h1 em {
+        font-style: normal;
+        background: linear-gradient(92deg, #6ea2ff 0%, #4be0e0 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .subhead {
+        margin: 0;
+        max-width: 152mm;
+        font-size: 11.4pt;
+        line-height: 1.55;
+        color: #b4c4e0;
+    }
+
+    .rule {
+        position: relative;
+        z-index: 1;
+        margin: 18mm 0 0;
+        height: 0.3mm;
+        background: linear-gradient(90deg, rgba(110, 162, 255, 0.7), rgba(75, 224, 224, 0.4) 45%, rgba(75, 224, 224, 0));
+    }
+
+    .benefits {
+        position: relative;
+        z-index: 1;
+        margin-top: 14mm;
+        display: grid;
+        gap: 12mm;
+    }
+
+    .benefit {
+        display: grid;
+        grid-template-columns: 15mm 1fr;
+        gap: 6mm;
+        align-items: start;
+    }
+
+    .benefit-num {
+        font-size: 15pt;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        background: linear-gradient(120deg, #6ea2ff, #47d3dc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .benefit h3 {
+        margin: 0 0 1.6mm;
+        font-size: 16pt;
+        font-weight: 750;
+        letter-spacing: -0.01em;
+        color: #f2f6ff;
+    }
+
+    .benefit p {
+        margin: 0;
+        max-width: 146mm;
+        font-size: 10.4pt;
+        line-height: 1.55;
+        color: #9fb2d2;
+    }
+
+    .stats {
+        position: relative;
+        z-index: 1;
+        margin-top: auto;
+        padding-top: 10mm;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border-top: 0.3mm solid rgba(110, 145, 210, 0.26);
+    }
+
+    .stat { padding-right: 5mm; }
+
+    .stat b {
+        display: block;
+        font-size: 21pt;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #ffffff;
+    }
+
+    .stat span {
+        display: block;
+        margin-top: 1.6mm;
+        font-size: 6.8pt;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #7f95b8;
+    }
+
+    .footer {
+        position: relative;
+        z-index: 1;
+        margin-top: 9mm;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 6mm;
+        font-size: 7.2pt;
+        color: #8095b8;
+    }
+
+    .footer b { color: #e7effd; font-weight: 650; }
+
+    .footer .right {
+        text-align: right;
+        font-size: 6.8pt;
+        letter-spacing: 0.03em;
+        color: #7f95b8;
+    }
+</style>
+</head>
+<body>
+<div class="poster">
+
+    <header class="topbar">
+        <div class="brand">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round">
+                    <path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/>
+                    <path d="M8 9h8M12 9v7"/>
+                </svg>
+            </div>
+            <div>
+                <div class="brand-name">TEXTIFY AI</div>
+                <div class="brand-sub">Image to text</div>
+            </div>
+        </div>
+        <div class="edition">
+            <b>Final Year Project</b><br>
+            OCR &amp; Document Intelligence &middot; 2026
+        </div>
+    </header>
+
+    <section class="hero">
+        <span class="eyebrow">Private OCR</span>
+        <h1>Text, from<br><em>any image.</em></h1>
+        <p class="subhead">
+            Photos, scans and screenshots. Cleaned, read and exported in seconds &mdash;
+            entirely on your device.
+        </p>
+    </section>
+
+    <div class="rule"></div>
+
+    <section class="benefits">
+        <div class="benefit">
+            <div class="benefit-num">01</div>
+            <div>
+                <h3>Private by design</h3>
+                <p>Recognition runs in your browser. The photo is never uploaded, and no third-party OCR API sees it.</p>
+            </div>
+        </div>
+        <div class="benefit">
+            <div class="benefit-num">02</div>
+            <div>
+                <h3>56 languages</h3>
+                <p>English, Hindi, Japanese, Arabic and more &mdash; combine up to three models on a single page.</p>
+            </div>
+        </div>
+        <div class="benefit">
+            <div class="benefit-num">03</div>
+            <div>
+                <h3>Cleaner text</h3>
+                <p>Eight automatic fixes repair common OCR mistakes, and exports are ready to use immediately.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stat"><b>7</b><span>Export formats</span></div>
+        <div class="stat"><b>8</b><span>Cleanup passes</span></div>
+        <div class="stat"><b>95&ndash;99%</b><span>Clean-scan accuracy</span></div>
+        <div class="stat"><b>0</b><span>Images uploaded</span></div>
+    </section>
+
+    <footer class="footer">
+        <div>
+            <b>Textify AI</b> &nbsp;&middot;&nbsp; Browser-based OCR studio<br>
+            Presented by [Your Name] &middot; [Department] &middot; [Institution]
+        </div>
+        <div class="right">
+            Tesseract.js &middot; ZXing &middot; Express 5 &middot; MongoDB Atlas
+        </div>
+    </footer>
+
+</div>
+</body>
+</html>

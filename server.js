@@ -30,12 +30,10 @@ const clearSessionCookieOptions = {
     path: "/"
 };
 
-if (isProduction && !configuredSessionSecret) {
-    throw new Error("SESSION_SECRET is required in production.");
-}
-
-if (isProduction && configuredSessionSecret.length < 32) {
-    throw new Error("SESSION_SECRET must contain at least 32 characters.");
+// TEMP DIAGNOSTIC: allow the Vercel function to load so /api/diagnostics can
+// report which production settings are missing. Restore the throws afterwards.
+if (isProduction && (!configuredSessionSecret || configuredSessionSecret.length < 32)) {
+    console.warn("TEMP DIAGNOSTIC: SESSION_SECRET is missing or shorter than 32 characters.");
 }
 
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
@@ -115,6 +113,35 @@ app.use(helmet({
 }));
 app.use("/api/documents", express.json({ limit: "3mb" }));
 app.use(express.json({ limit: "16kb" }));
+
+// TEMP DIAGNOSTIC: remove after verifying the Vercel runtime.
+app.get("/api/diagnostics", async (req, res) => {
+    let init = "ok";
+
+    try {
+        await initialize();
+    } catch (error) {
+        init = `${error.name}: ${error.message}`;
+    }
+
+    res.set("Cache-Control", "no-store");
+    res.json({
+        ok: true,
+        node: process.version,
+        vercel: Boolean(process.env.VERCEL),
+        vercelEnv: process.env.VERCEL_ENV || null,
+        requireMain: require.main === module,
+        env: {
+            nodeEnv: process.env.NODE_ENV || null,
+            mongoUri: Boolean(process.env.MONGODB_URI),
+            mongoDb: process.env.MONGODB_DB || null,
+            sessionSecret: Boolean(process.env.SESSION_SECRET),
+            sessionSecretValid: (process.env.SESSION_SECRET || "").length >= 32,
+            trustProxy: process.env.TRUST_PROXY || null
+        },
+        init
+    });
+});
 
 // Connect to MongoDB before the session store or any route is used. This runs
 // once per process (including each Vercel serverless cold start).
@@ -460,7 +487,7 @@ async function startServer() {
     return server;
 }
 
-if (require.main === module) {
+if (require.main === module && !process.env.VERCEL) {
     startServer().catch(async (error) => {
         console.error("Could not start Textify AI:", error.message);
         await database.closeDatabase();

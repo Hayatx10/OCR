@@ -11,7 +11,11 @@ const loginError = document.getElementById("loginError");
 const signInTab = document.getElementById("signInTab");
 const signUpTab = document.getElementById("signUpTab");
 const localAppUrl = "http://localhost:3010";
-const apiBaseUrl = window.location.port === "3010" ? "" : localAppUrl;
+// The app is served by Express in production (Render/Vercel) and by the dev
+// server on port 3010. Only static previews need to reach across to 3010.
+const isStaticPreview = window.location.protocol === "file:"
+    || (["localhost", "127.0.0.1"].includes(window.location.hostname) && window.location.port !== "3010");
+const apiBaseUrl = isStaticPreview ? localAppUrl : "";
 
 let authMode = "sign-in";
 let isAuthenticating = false;

@@ -326,11 +326,11 @@ async function updateDocument(userId, documentId, patch) {
             { returnDocument: "after" }
         );
 
-        if (!result?.value) {
+        if (!result) {
             return null;
         }
 
-        return { ...result.value, id: result.value._id.toHexString() };
+        return { ...result, id: result._id.toHexString() };
     }
 
     return updateLocalArray(localDocumentsFile, async (documents) => {

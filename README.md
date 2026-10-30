@@ -56,6 +56,50 @@ When `MONGODB_URI` is set, the server connects to MongoDB Atlas and persists use
 
 For production, set `NODE_ENV=production` and serve the site over HTTPS. If TLS terminates at a trusted reverse proxy, set `TRUST_PROXY=1`.
 
+## Deploy to Render and Vercel
+
+Both platforms run the same Express app and share one MongoDB Atlas database. The frontend lives in `public/`; the API, sessions, and auth run in `server.js`.
+
+### Before deploying
+
+1. In MongoDB Atlas, open **Network Access** and allow `0.0.0.0/0`. Render and Vercel use dynamic egress IPs, so a single home IP will not work.
+2. Generate a session secret:
+   ```powershell
+   node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'))"
+   ```
+3. Have the Atlas SRV connection string ready. Never commit it.
+
+### Render
+
+1. Push this repository to GitHub.
+2. In the Render Dashboard, choose **New → Blueprint** and connect the repository. `render.yaml` creates a free Node web service named `textify-ocr`.
+3. When Render asks for `MONGODB_URI`, paste the Atlas SRV string. `MONGODB_DB`, `NODE_ENV`, `TRUST_PROXY`, and `SESSION_SECRET` are set by the Blueprint (`SESSION_SECRET` is generated).
+4. Deploy. The health check is `/api/health`, and the app is available at `https://<service-name>.onrender.com`.
+5. Free instances sleep when idle; the first request after a pause can take 30 seconds or more.
+
+If you prefer the dashboard instead of the Blueprint, create a **Web Service** with build command `npm ci`, start command `npm start`, and add the same environment variables manually.
+
+### Vercel
+
+1. In the Vercel Dashboard, choose **Add New → Project** and import the repository.
+2. Keep the default root directory. Vercel detects the Express entry point (`server.js`) automatically; no build command is needed.
+3. Add these environment variables for **Production** (and **Preview** if you use it):
+   - `MONGODB_URI` = Atlas SRV string
+   - `MONGODB_DB` = `textify`
+   - `SESSION_SECRET` = the generated secret
+   - `TRUST_PROXY` = `1`
+   - `NODE_ENV` = `production`
+4. Deploy. Files in `public/` are served by the Vercel CDN; `/api/*` runs the Express function.
+5. Vercel sets `NODE_ENV=production` itself. Sessions persist in MongoDB because Vercel's filesystem is read-only and instances are ephemeral.
+
+### Verify a deployment
+
+- `GET /api/health` should return `{"status":"ok","storage":"mongodb","sessions":"mongodb"}`.
+- Register an account, reload the page, then save and reopen a scan.
+- Redeploy or wait for a cold start and confirm the account and library are still there.
+- `MONGODB_URI` is required when `NODE_ENV=production`; the server refuses to start without it to avoid losing data to the read-only/ephemeral filesystem.
+
+
 OCR runs in the browser. The OCR library and selected language data are downloaded from jsDelivr the first time extraction is used. Hindi uses Tesseract's higher-accuracy trained data; it has a larger first download and is cached by the browser. Select English as well when a Hindi document also contains English text.
 
 The **Text to image** section can render typed text or the current OCR result as a styled PNG. Choose the font, text size, image width, alignment, and colors; the preview and PNG are generated locally in the browser.

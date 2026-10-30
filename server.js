@@ -15,6 +15,7 @@ const app = express();
 const port = Number(process.env.PORT || 3010);
 const configuredSessionSecret = process.env.SESSION_SECRET;
 const projectDirectory = __dirname;
+const publicDirectory = path.join(projectDirectory, "public");
 const isProduction = process.env.NODE_ENV === "production";
 const sessionCookieName = "textify.sid";
 const sessionCookieOptions = {
@@ -114,6 +115,13 @@ app.use(helmet({
 }));
 app.use("/api/documents", express.json({ limit: "3mb" }));
 app.use(express.json({ limit: "16kb" }));
+
+// Connect to MongoDB before the session store or any route is used. This runs
+// once per process (including each Vercel serverless cold start).
+app.use((req, res, next) => {
+    initialize().then(() => next(), next);
+});
+
 app.use(session({
     name: sessionCookieName,
     secret: sessionSecret,
@@ -203,7 +211,7 @@ function requireApiAuth(req, res, next) {
 }
 
 function sendFile(res, fileName) {
-    res.sendFile(path.join(projectDirectory, fileName));
+    res.sendFile(path.join(publicDirectory, fileName));
 }
 
 app.get("/", (req, res) => {
@@ -213,8 +221,9 @@ app.get("/", (req, res) => {
     }
 
     res.set("Cache-Control", "no-store");
-    sendFile(res, "INDEX.HTML");
+    sendFile(res, "index.html");
 });
+
 app.get("/login", (req, res) => {
     if (req.session.user) {
         res.redirect(302, "/");
@@ -224,12 +233,17 @@ app.get("/login", (req, res) => {
     res.set("Cache-Control", "no-store");
     sendFile(res, "login.html");
 });
+
 app.get("/style.css", (req, res) => sendFile(res, "style.css"));
 app.get("/auth.js", (req, res) => sendFile(res, "auth.js"));
 app.get("/script.js", requireAuth, (req, res) => sendFile(res, "script.js"));
 app.get("/text-tools.js", requireAuth, (req, res) => sendFile(res, "text-tools.js"));
 app.get("/exporters.js", requireAuth, (req, res) => sendFile(res, "exporters.js"));
 app.get("/text-to-image.js", requireAuth, (req, res) => sendFile(res, "text-to-image.js"));
+
+// Serve any remaining public assets (icons, future files). `index: false`
+// keeps the authenticated "/" route in charge of the app shell.
+app.use(express.static(publicDirectory, { index: false }));
 
 app.get("/api/health", async (req, res) => {
     res.json({
@@ -398,33 +412,63 @@ app.use((error, req, res, next) => {
     res.status(500).json({ error: "A server error occurred. Please try again." });
 });
 
-async function startServer() {
-    const connection = await database.connectDatabase();
+let initializationPromise = null;
 
-    if (connection.mode === "mongodb") {
-        sessionStore = MongoStore.create({
-            client: database.getMongoClient(),
-            dbName: process.env.MONGODB_DB || "textify",
-            collectionName: "sessions",
-            ttl: 7 * 24 * 60 * 60,
-            touchAfter: 24 * 60 * 60,
-            stringify: false,
-            timestamps: true
+async function initialize() {
+    if (!initializationPromise) {
+        initializationPromise = (async () => {
+            if (isProduction && !process.env.MONGODB_URI) {
+                throw new Error("MONGODB_URI is required in production.");
+            }
+
+            const connection = await database.connectDatabase();
+
+            if (connection.mode === "mongodb") {
+                sessionStore = MongoStore.create({
+                    client: database.getMongoClient(),
+                    dbName: process.env.MONGODB_DB || "textify",
+                    collectionName: "sessions",
+                    ttl: 7 * 24 * 60 * 60,
+                    touchAfter: 24 * 60 * 60,
+                    stringify: false,
+                    timestamps: true
+                });
+
+                console.log("Sessions are stored in MongoDB.");
+            } else {
+                sessionStore = new session.MemoryStore();
+                console.warn("Sessions use the in-memory store. Restarting the server signs everyone out.");
+            }
+
+            return connection;
+        })().catch((error) => {
+            // Allow the next request to retry if the database was unreachable.
+            initializationPromise = null;
+            throw error;
         });
-
-        console.log("Sessions are stored in MongoDB.");
-    } else {
-        sessionStore = new session.MemoryStore();
-        console.warn("Sessions use the in-memory store. Restarting the server signs everyone out.");
     }
 
-    app.listen(port, "0.0.0.0", () => {
-        console.log(`Textify AI is running at http://localhost:${port}`);
+    return initializationPromise;
+}
+
+async function startServer() {
+    const connection = await initialize();
+    const server = app.listen(port, "0.0.0.0", () => {
+        console.log(`Textify AI is running at http://localhost:${port} (${connection.mode} storage)`);
+    });
+
+    return server;
+}
+
+if (require.main === module) {
+    startServer().catch(async (error) => {
+        console.error("Could not start Textify AI:", error.message);
+        await database.closeDatabase();
+        process.exitCode = 1;
     });
 }
 
-startServer().catch(async (error) => {
-    console.error("Could not start Textify AI:", error.message);
-    await database.closeDatabase();
-    process.exitCode = 1;
-});
+// Vercel imports this file and detects the exported Express app.
+// Running `node server.js` still starts the normal HTTP listener.
+module.exports = app;
+module.exports.initialize = initialize;

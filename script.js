@@ -18,6 +18,15 @@ const ocrWordMap = document.getElementById("ocrWordMap");
 const fileName = document.getElementById("fileName");
 const fileSize = document.getElementById("fileSize");
 const removeBtn = document.getElementById("removeBtn");
+const resizeWidth = document.getElementById("resizeWidth");
+const resizeHeight = document.getElementById("resizeHeight");
+const lockAspectRatio = document.getElementById("lockAspectRatio");
+const compressionQuality = document.getElementById("compressionQuality");
+const compressionQualityValue = document.getElementById("compressionQualityValue");
+const compressedImageFormat = document.getElementById("compressedImageFormat");
+const downloadCompressedBtn = document.getElementById("downloadCompressedBtn");
+const originalImageSize = document.getElementById("originalImageSize");
+const compressionResult = document.getElementById("compressionResult");
 const extractBtn = document.getElementById("extractBtn");
 const classifyLetterBtn = document.getElementById("classifyLetterBtn");
 const letterClassifierResult = document.getElementById("letterClassifierResult");
@@ -994,6 +1003,91 @@ function createProcessingCanvas(image, maxDimension = 1800) {
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
     return canvas;
+}
+
+async function updateImageSizeControls(file = selectedFile) {
+    if (!file) return;
+
+    try {
+        const image = await createImageBitmap(file);
+        resizeWidth.value = image.width;
+        resizeHeight.value = image.height;
+        resizeWidth.dataset.sourceWidth = String(image.width);
+        resizeHeight.dataset.sourceHeight = String(image.height);
+        originalImageSize.textContent = `${image.width} × ${image.height}px · ${formatFileSize(file.size)}`;
+        image.close();
+    } catch (error) {
+        originalImageSize.textContent = "Size unavailable";
+    }
+}
+
+function ratioAdjustedDimension(changedInput) {
+    if (!lockAspectRatio.checked) return;
+
+    const sourceWidth = Number(resizeWidth.dataset.sourceWidth);
+    const sourceHeight = Number(resizeHeight.dataset.sourceHeight);
+    if (!sourceWidth || !sourceHeight) return;
+
+    const value = Number(changedInput.value);
+    if (value > 0) {
+        if (changedInput === resizeWidth) {
+            resizeHeight.value = Math.max(1, Math.round(value * sourceHeight / sourceWidth));
+        } else {
+            resizeWidth.value = Math.max(1, Math.round(value * sourceWidth / sourceHeight));
+        }
+    }
+}
+
+async function downloadCompressedImage() {
+    if (!selectedFile || isProcessing) return;
+
+    const width = Number(resizeWidth.value);
+    const height = Number(resizeHeight.value);
+    if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 12000 || height > 12000) {
+        showToast("Enter a valid width and height.");
+        return;
+    }
+
+    downloadCompressedBtn.disabled = true;
+    downloadCompressedBtn.textContent = "Compressing...";
+    try {
+        const image = await createImageBitmap(selectedFile);
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Your browser could not resize the image.");
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, width, height);
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+        context.drawImage(image, 0, 0, width, height);
+        image.close();
+
+        const mimeType = compressedImageFormat.value;
+        const extension = mimeType === "image/png" ? "png" : mimeType === "image/webp" ? "webp" : "jpg";
+        const quality = Number(compressionQuality.value) / 100;
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, mimeType, quality));
+        if (!blob) throw new Error("The compressed image could not be created.");
+
+        const baseName = selectedFile.name.replace(/\.[^.]+$/, "") || "image";
+        const downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = `${baseName}-${width}x${height}.${extension}`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+        compressionResult.textContent = `Created ${width} × ${height}px image · ${formatFileSize(blob.size)}.`;
+        showToast("Compressed image downloaded.");
+    } catch (error) {
+        compressionResult.textContent = error.message || "Image compression failed.";
+        showToast(error.message || "Image compression failed.");
+    } finally {
+        downloadCompressedBtn.disabled = false;
+        downloadCompressedBtn.textContent = "Download compressed image";
+    }
 }
 
 function canvasToImageFile(canvas, originalFile) {
@@ -2571,6 +2665,8 @@ function setSelectedFile(file) {
     cropImageSize?.close();
     cropImageSize = null;
     scannerNote.textContent = "Edits are applied before text extraction.";
+    compressionResult.textContent = "The source image will not be changed.";
+    updateImageSizeControls(file);
     extractBtn.disabled = isProcessing;
     classifyLetterBtn.disabled = isProcessing;
     letterClassifierResult.textContent = "Ready to recognize one letter.";
@@ -2898,6 +2994,12 @@ enhanceBtn.addEventListener("click", cleanImage);
 perspectiveBtn.addEventListener("click", correctPerspective);
 applyCropBtn.addEventListener("click", applyImageCrop);
 cancelCropBtn.addEventListener("click", cancelCropEditor);
+resizeWidth.addEventListener("input", () => ratioAdjustedDimension(resizeWidth));
+resizeHeight.addEventListener("input", () => ratioAdjustedDimension(resizeHeight));
+compressionQuality.addEventListener("input", () => {
+    compressionQualityValue.textContent = `${compressionQuality.value}%`;
+});
+downloadCompressedBtn.addEventListener("click", downloadCompressedImage);
 
 cropCanvas.addEventListener("pointerdown", (event) => {
     if (!cropImageSize || isScanningImage || isProcessing) {

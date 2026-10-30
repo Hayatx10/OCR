@@ -11,6 +11,7 @@ const loginError = document.getElementById("loginError");
 const signInTab = document.getElementById("signInTab");
 const signUpTab = document.getElementById("signUpTab");
 const localAppUrl = "http://localhost:3010";
+const apiBaseUrl = window.location.port === "3010" ? "" : localAppUrl;
 
 let authMode = "sign-in";
 let isAuthenticating = false;
@@ -113,10 +114,10 @@ loginForm.addEventListener("submit", async (event) => {
     loginSubmit.textContent = authMode === "sign-up" ? "Creating account..." : "Signing in...";
 
     try {
-        const response = await fetch(`/api/auth/${authMode === "sign-up" ? "register" : "login"}`, {
+        const response = await fetch(`${apiBaseUrl}/api/auth/${authMode === "sign-up" ? "register" : "login"}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            credentials: "same-origin",
+            credentials: apiBaseUrl ? "include" : "same-origin",
             body: JSON.stringify({
                 email: loginEmail.value,
                 password: loginPassword.value
@@ -140,7 +141,7 @@ loginForm.addEventListener("submit", async (event) => {
 
 async function redirectIfSignedIn() {
     try {
-        const response = await fetch("/api/auth/me", { credentials: "same-origin" });
+        const response = await fetch(`${apiBaseUrl}/api/auth/me`, { credentials: apiBaseUrl ? "include" : "same-origin" });
         if (response.ok) {
             window.location.replace("/");
         }

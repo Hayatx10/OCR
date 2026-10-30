@@ -131,6 +131,29 @@
                             <button class="secondary-btn scanner-tool-btn" id="cropBtn" type="button">Crop image</button>
                             <button class="secondary-btn scanner-tool-btn" id="grayscaleBtn" type="button">Grayscale</button>
                         </div>
+                        <div class="image-size-editor" id="imageSizeEditor">
+                            <div class="image-size-heading">
+                                <span>Resize & compress</span>
+                                <small id="originalImageSize">Original: —</small>
+                            </div>
+                            <div class="image-size-fields">
+                                <label>Width <input id="resizeWidth" type="number" min="1" max="12000" inputmode="numeric"></label>
+                                <label>Height <input id="resizeHeight" type="number" min="1" max="12000" inputmode="numeric"></label>
+                                <label class="lock-size"><input id="lockAspectRatio" type="checkbox" checked> Keep aspect ratio</label>
+                            </div>
+                            <label class="compression-quality">Compression quality <strong id="compressionQualityValue">85%</strong>
+                                <input id="compressionQuality" type="range" min="10" max="100" value="85">
+                            </label>
+                            <div class="scanner-tool-row">
+                                <select id="compressedImageFormat" class="scanner-format" aria-label="Compressed image format">
+                                    <option value="image/jpeg">JPEG</option>
+                                    <option value="image/png">PNG</option>
+                                    <option value="image/webp">WEBP</option>
+                                </select>
+                                <button class="secondary-btn scanner-tool-btn" id="downloadCompressedBtn" type="button">Download compressed image</button>
+                            </div>
+                            <p class="scanner-note" id="compressionResult" role="status" aria-live="polite">The source image will not be changed.</p>
+                        </div>
                         <button class="secondary-btn scanner-tool-btn" id="enhanceBtn" type="button">Clean up shadows and noise</button>
                         <button class="secondary-btn scanner-tool-btn" id="perspectiveBtn" type="button">Auto-correct perspective</button>
                         <button class="secondary-btn scanner-tool-btn" id="qrBtn" type="button">Read QR / barcode</button>

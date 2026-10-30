@@ -4438,6 +4438,109 @@ body {
     line-height: 1.5;
 }
 
+.image-size-editor {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #5d6685;
+    border-radius: 10px;
+    background: #252a40;
+}
+
+.image-size-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 9px;
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.image-size-heading small {
+    color: #c9d0e8;
+    font-weight: 500;
+}
+
+.image-size-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.image-size-fields label {
+    display: grid;
+    gap: 5px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.image-size-fields input[type="number"] {
+    width: 100%;
+    min-height: 38px;
+    box-sizing: border-box;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    padding: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.image-size-fields .lock-size {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 7px;
+    color: var(--white);
+}
+
+.compression-quality {
+    display: block;
+    margin-top: 9px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.compression-quality strong {
+    float: right;
+    color: var(--white);
+}
+
+.compression-quality input {
+    width: 100%;
+    accent-color: var(--accent);
+}
+
+.scanner-format {
+    width: 92px;
+    min-height: 38px;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    padding: 6px;
+    font-weight: 700;
+}
+
+.image-size-editor #compressionResult {
+    color: #dbe3ff;
+}
+
+.image-size-editor #downloadCompressedBtn {
+    border-color: #ffffff;
+    background: #ffffff;
+    color: #111827;
+    font-weight: 700;
+}
+
+.image-size-editor .scanner-tool-row .scanner-tool-btn {
+    flex: 1;
+}
+
 #cropCanvas {
     display: block;
     width: auto;

@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const bcrypt = require("bcryptjs");
-const MongoStore = require("connect-mongo");
+const { MongoStore } = require("connect-mongo");
 const express = require("express");
 const { rateLimit } = require("express-rate-limit");
 const session = require("express-session");
@@ -418,9 +418,10 @@ async function startServer() {
         console.warn("Sessions use the in-memory store. Restarting the server signs everyone out.");
     }
 
-   app.listen(port, '0.0.0.0', () => {
-    console.log(`Textify AI is running on port ${port}`);
-});}
+    app.listen(port, "0.0.0.0", () => {
+        console.log(`Textify AI is running at http://localhost:${port}`);
+    });
+}
 
 startServer().catch(async (error) => {
     console.error("Could not start Textify AI:", error.message);
